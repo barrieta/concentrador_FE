@@ -2,10 +2,10 @@
   <div id="sideMenu">
       <h2> Concentrador </h2>
     <nav>
-        <router-link to="#" v-on:click.native="setActive(0)" v-bind:class="{active: isActive[0]}">My Profile</router-link>
-        <router-link to="#" v-on:click.native="setActive(1)" v-bind:class="{active: isActive[1]}"> Dashboard </router-link>
-        <router-link to="#" v-on:click.native="setActive(2)" v-bind:class="{active: isActive[2]}"> Servers </router-link>
-       <!-- <a href="#" v-on:click="setActive(3)" v-bind:class="{active: isActive[3]}"> Item 4 </a>-->
+        <router-link to="/" v-on:click.native="setActive(0)" v-bind:class="{active: isActive[0]}">Server Info</router-link>
+        <router-link to="/newserver" v-on:click.native="setActive(1)" v-bind:class="{active: isActive[1]}">New Server</router-link>
+        <router-link to="/deleteserver" v-on:click.native="setActive(2)" v-bind:class="{active: isActive[2]}">Delete Server</router-link>
+        <router-link to="/status" v-on:click.native="setActive(3)" v-bind:class="{active: isActive[3]}">Status</router-link>
     </nav>
 
   </div>
@@ -34,12 +34,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #sideMenu{
-    background: lightskyblue;
-    width: 250px;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    color: white;
+    
 }
 
 #sideMenu nav{

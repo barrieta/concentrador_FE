@@ -1,7 +1,11 @@
 <template>
   <div id="app">
-    <app-sidemenu/>
-    <router-view></router-view>
+    <div class="side-content">
+      <app-sidemenu/>
+    </div>
+    <div class="main-content">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
@@ -16,12 +20,26 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+body{
+  font-family: 'Courier New', Courier, monospace;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+}
+
+.side-content{
+  background: lightskyblue;
+    width: 250px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    color: white;
+}
+.main-content{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin-left: 250px;
+  background: ghostwhite;
 }
 </style>
