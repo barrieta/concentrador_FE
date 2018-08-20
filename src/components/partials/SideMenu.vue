@@ -1,11 +1,10 @@
 <template>
   <div id="sideMenu">
       <h2> Concentrador </h2>
-      <h3> {{isActive}} </h3>
     <nav>
-        <router-link to="#" v-on:click="setActive(0)" v-bind:class="{active: isActive[0]}">My Profile</router-link>
-        <router-link to="#" v-on:click="setActive(1)" v-bind:class="{active: isActive[1]}"> Dashboard </router-link>
-        <router-link to="#" v-on:click="setActive(2)" v-bind:class="{active: isActive[2]}"> Servers </router-link>
+        <router-link to="#" v-on:click.native="setActive(0)" v-bind:class="{active: isActive[0]}">My Profile</router-link>
+        <router-link to="#" v-on:click.native="setActive(1)" v-bind:class="{active: isActive[1]}"> Dashboard </router-link>
+        <router-link to="#" v-on:click.native="setActive(2)" v-bind:class="{active: isActive[2]}"> Servers </router-link>
        <!-- <a href="#" v-on:click="setActive(3)" v-bind:class="{active: isActive[3]}"> Item 4 </a>-->
     </nav>
 
@@ -59,19 +58,6 @@ a:hover{
     background: lightblue;
     border-left: 5px solid blue;
     padding: 15px 30px 15px 25px
-}
-
-a.active{
-    
-}
-
-.router-link-active{
-    color: white;
-    text-decoration: none;
-    display: block;
-    padding: 15px 30px;
-    transition: all 0.3s ease-in-out;
-    text-align: left;
 }
 
 a.active {
