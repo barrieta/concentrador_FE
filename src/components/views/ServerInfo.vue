@@ -3,116 +3,125 @@
     <h1>{{ msg }}</h1>
     <b-form>
       <b-form-group 
-          id="domain"
-          label="Server Domain:"
           label-for="domain-dropdown">
-          <b-form-select id="domain-dropdown"
-              :options="domains"
+          <b-form-input id="server-input"
               required
-              v-model="form.domain"
-              v-on:input="onDomainChange">
-          </b-form-select>
+              v-model="server"
+              autocomplete="off"
+              placeholder="Enter the Server's Host Name or IP Address."
+              style="width: 500px">
+          </b-form-input>
       </b-form-group>
-      <b-form-group 
-          id="ipaddress"
-          label="IP Address:"
-          label-for="ipaddress-dropdown">
-          <b-form-select id="ipaddress-dropdown"
-              :options="ipaddresses"
-              required
-              v-model="form.ipaddress"
-              v-on:input="showTable=false">
-          </b-form-select>
-      </b-form-group>
-      <b-form-group 
-          id="hostname"
-          label="Host Name:"
-          label-for="hostname-dropdown">
-          <b-form-select id="hostname-dropdown"
-              :options="hostnames"
-              required
-              v-model="form.hostname"
-              v-on:input="showTable=false">
-          </b-form-select>
-      </b-form-group>
-      <b-button type="submit" variant="info" v-on:click="showServerInfo">Show Server</b-button>  
-    </b-form>
-    <b-table striped hover :items="items" :fields="fields" v-if="showTable"></b-table>
-  </div>
+      <p style="color:red" v-if="!serverFound"> No matches found </p>
+      <b-button type="submit" variant="success" v-on:click="showServer(server)">Show Server</b-button>
+      <br>
+    </b-form><br><br>
+    <b-table striped hover 
+        :items="items" 
+        :fields="fields" 
+        v-if="showTable"
+        @row-clicked="showServerDetail($event)">
+    </b-table>
+
+    <div>
+      <!-- Modal Component -->
+      <b-modal 
+        ref="myModalRef" 
+        hide-footer
+        centered>
+        <div class="d-block text-center">
+          <div v-for="(field, index) in serverDetail.field" v-bind:key="index">
+            <div v-if="typeof serverDetail.value[index] !== 'object'">
+              <p align="left">
+                <b > {{field}}: </b>
+                <span> {{serverDetail.value[index]}} </span> 
+              </p>
+            </div>
+            <div v-else v-for="(key, value, index) in serverDetail.value[index]" v-bind:key = "index">
+                <p align= "left" v-if="typeof key !== 'object'"> 
+                <b> {{value}}: </b> <span> {{key}} </span> </p>
+              </div>
+          </div>
+        </div>
+        <b-btn class="mt-3" variant="outline-danger" block @click="hideServerDetail">Close</b-btn>
+      </b-modal>
+    </div>
+</div>
 </template>
 
 <script>
+import getServerService from '../../services/getServerService';
 export default {
   name: 'ServerInfo',
   data () {
     return {
       msg: 'Get Server Info',
-      allSelected: null,
-      showTable: false,
 
-      domains: [
-        {text: 'Select One', value: null}
-      ],
-      hostnames: [
-        {text: 'Select One', value: null}
-      ],
-      ipaddresses: [
-        {text: 'Select One', value: null}
-      ],
-      //Estas variables guardarán los valores seleccionados por el usuario (v-model)
-      form: {
-        domain: null,
-        ipaddress: null,
-        hostname: null
+      server: '', //Holds the data typed by the user
+      serverFound: true,
+
+      serverDetail: {
+        field: '',
+        value: ''
       },
+      
       //Table
-      fields: ['domain', 'ipAddress', 'hostName'],
+      showTable: false,
+      fields: ['hostName', 'ipAddress', 'domain', 'operatingSystemClass'],
       items: []
     }
   },
   methods: {
-    showServerInfo: function(){
-      if(this.form.domain!=null && this.form.ipaddress!=null && this.form.hostname!=null){
-        this.items.length = 0;
-        this.items.push({domain: this.form.domain, ipAddress: this.form.ipaddress, hostName: this.form.hostname});
-        this.showTable = true;
-      }
-    },
-    loadDomains: function(){
-      this.domains.push('Domain1');
-      this.domains.push('Domain2');
-      this.domains.push('Domain3');
-    },
-    onDomainChange: function(){
-      //Call API and get IP's and hostnames for the selected domain
-      //API.getIPsByDomain();
-      //API.getHostsByDomain();
-      console.log("domain changed");
-      console.log("clearing arrays");
-      console.log(this.form.domain);
-      this.showTable = false;
-      this.ipaddresses.length = 1;
-      this.form.ipaddress = null;
-      this.hostnames.length = 1;
-      this.form.hostname = null;
-      
-      this.ipaddresses.push('192.168.1.1');
-      this.ipaddresses.push('192.168.1.2');
-      this.ipaddresses.push('192.168.1.3');
+    showServer: async function(server){
+      this.items.length=0;
+      this.showTable=false;
+      this.serverFound = true;
 
-      this.hostnames.push('Hostname 1');
-      this.hostnames.push('Hostname 2');
-      this.hostnames.push('Hostname 3');
+      if(server.length == 0) {return;}
+
+      if(server.indexOf('.') !== -1) {
+      //check correct IP format
+      var serverInfo = await getServerService.getServerByIp(server);
+      } else {
+        var serverInfo = await getServerService.getServerByHostName(server);
+      }
+
+      for (var i=0; i<serverInfo.data.count; i++){
+        var serv = serverInfo.data.rows[i]
+        this.items.push(
+          { hostName: serv.hostname, 
+            ipAddress: serv.ip_addresses[0].nameIP, 
+            domain: serv.domain.nameDomain,
+            operatingSystemClass: serv.os_class.nameOSclass
+          });
+      }
+
+      (serverInfo.data.count>0) ? this.showTable = true : this.serverFound = false;
     },
-  },
-  mounted: function(){
-    console.log('Loading domains...')
-    this.loadDomains();
+    showServerDetail: async function(event){
+      console.log(event.hostName);
+      var serverInfo = await getServerService.getServerByHostName(event.hostName);
+      var servDetail = serverInfo.data.rows[0]; //There can only be one element (searching by exact hostName)
+      this.serverDetail.field = Object.keys(servDetail);
+      this.serverDetail.value = Object.values(servDetail);
+      this.$refs.myModalRef.show();
+
+      /*console.log(this.serverDetail);
+      console.log(this.serverDetail.field);
+      console.log(this.serverDetail.value);
+      console.log(Object.keys(this.serverDetail.value));
+      console.log(Object.values(this.serverDetail.value));*/
+    },
+    hideServerDetail: function(){
+      this.$refs.myModalRef.hide();
+    }
   }
-}
+ }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+#server-input{
+  margin: 0 auto;
+}
 </style>
