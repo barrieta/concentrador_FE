@@ -16,6 +16,7 @@
       <b-button type="submit" variant="success" v-on:click="showServer(server)">Show Server</b-button>
       <br>
     </b-form><br><br>
+
     <b-table striped hover 
         :items="items" 
         :fields="fields" 
@@ -75,6 +76,7 @@ export default {
     showServer: async function(server){
       this.items.length=0;
       this.showTable=false;
+<<<<<<< HEAD
       this.serverFound = true;
 
       if(server.length == 0) {return;}
@@ -84,6 +86,31 @@ export default {
       var serverInfo = await getServerService.getServerByIp(server);
       } else {
         var serverInfo = await getServerService.getServerByHostName(server);
+=======
+
+      if(server.indexOf('.') !== -1) {
+        //check correct IP format
+        var serverInfo = await getServerService.getServerByIp(server);
+      } else {
+        var serverInfo = await getServerService.getServerByHostName(server);
+      }
+
+      for (var i=0; i<serverInfo.data.count; i++){
+        var serv = serverInfo.data.rows[i]
+        this.items.push(
+          { hostName: serv.hostname, 
+            ipAddress: serv.ip_addresses[0].nameIP, 
+            domain: serv.domain.nameDomain,
+            operatingSystemClass: serv.os_class.nameOSclass
+          });
+      }
+
+      if (serverInfo.data.count>0) {
+        this.showTable=true;
+        this.serverFound = true;
+      } else{
+        this.serverFound = false;
+>>>>>>> a8ed605c085e57f0de29f2172d139f317cc5dc42
       }
 
       for (var i=0; i<serverInfo.data.count; i++){
@@ -106,11 +133,19 @@ export default {
       this.serverDetail.value = Object.values(servDetail);
       this.$refs.myModalRef.show();
 
+<<<<<<< HEAD
       /*console.log(this.serverDetail);
       console.log(this.serverDetail.field);
       console.log(this.serverDetail.value);
       console.log(Object.keys(this.serverDetail.value));
       console.log(Object.values(this.serverDetail.value));*/
+=======
+      console.log(this.serverDetail);
+      console.log(this.serverDetail.field);
+      console.log(this.serverDetail.value);
+      console.log(Object.keys(this.serverDetail.value));
+      console.log(Object.values(this.serverDetail.value));
+>>>>>>> a8ed605c085e57f0de29f2172d139f317cc5dc42
     },
     hideServerDetail: function(){
       this.$refs.myModalRef.hide();
